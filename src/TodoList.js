@@ -1,9 +1,9 @@
-import React from 'react'
-import Todo from './Todo'
-import gql from 'graphql-tag'
-import { Query } from 'react-apollo'
+import React from 'react';
+import Todo from './Todo';
+import gql from 'graphql-tag';
+import { Query } from 'react-apollo';
 
-const GET_TODOS = gql`
+export const GET_TODOS = gql`
   query GetTodos {
     todos {
       id
@@ -11,7 +11,10 @@ const GET_TODOS = gql`
       completed
     }
   }
-`
+`;
+
 export default () => (
-  <Query query={GET_TODOS}>{({ loading, data }) => !loading && data.todos.map(Todo)}</Query>
-)
+  <Query query={GET_TODOS}>
+    {({ loading, data }) => !loading && data.todos.map(Todo)}
+  </Query>
+);

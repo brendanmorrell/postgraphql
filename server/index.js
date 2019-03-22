@@ -1,14 +1,14 @@
-const express = require('express')
-const cors = require('cors')
-const graphqlHTTP = require('express-graphql')
-const gql = require('graphql-tag')
-const { buildASTSchema } = require('graphql')
+const express = require('express');
+const cors = require('cors');
+const graphqlHTTP = require('express-graphql');
+const gql = require('graphql-tag');
+const { buildASTSchema } = require('graphql');
 
 const TODOS = [
   { task: 'Walk the dog', completed: false },
   { task: 'Clean your room', completed: false },
   { task: 'drink too much', completed: true },
-]
+];
 
 const schema = buildASTSchema(gql`
   type Query {
@@ -21,25 +21,40 @@ const schema = buildASTSchema(gql`
     task: String!
     completed: Boolean!
   }
-`)
 
-const mapTodo = (todo, id) => todo && { id, ...todo }
+  type Mutation {
+    addTodo(input: TodoInput!): Todo
+  }
+
+  input TodoInput {
+    task: String!
+  }
+`);
+
+const mapTodo = (todo, id) => todo && { id, ...todo };
 
 const rootValue = {
   todos: () => TODOS.map(mapTodo),
   todo: ({ id }) => mapTodo(TODOS[id], id),
-}
+  addTodo: ({ input: { task } }) => {
+    const todo = { task, completed: false };
+    TODOS.push(todo);
+    return mapTodo(todo, TODOS.length);
+  },
+};
 
-const app = express()
-app.use(cors())
+const app = express();
+app.use(cors());
 app.use(
   '/graphql',
   graphqlHTTP({
     schema,
     rootValue,
     graphiql: true,
-  })
-)
+  }),
+);
 
-const port = process.env.PORT || 4000
-app.listen(port, () => console.log(`Running a GraphQL API server at localhost:${port}/graphql`))
+const port = process.env.PORT || 4000;
+app.listen(port, () =>
+  console.log(`Running a GraphQL API server at localhost:${port}/graphql`),
+);

@@ -1,4 +1,9 @@
 import React from 'react';
-import TodoList from './TodoList'
-
-export default () => <><TodoList/></>
+import TodoList from './TodoList';
+import AddTodo from './AddTodo';
+export default () => (
+  <>
+    <TodoList />
+    <AddTodo />
+  </>
+);
