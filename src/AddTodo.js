@@ -3,10 +3,9 @@ import client from './apollo';
 import gql from 'graphql-tag';
 import { GET_TODOS } from './TodoList';
 
-const ADD_TODO = gql`
+export const ADD_TODO = gql`
   mutation AddTodo($input: TodoInput!) {
     addTodo(input: $input) {
-      id
       task
     }
   }

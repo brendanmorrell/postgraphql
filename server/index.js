@@ -4,7 +4,7 @@ const graphqlHTTP = require('express-graphql');
 const gql = require('graphql-tag');
 const { buildASTSchema } = require('graphql');
 
-const TODOS = [
+let TODOS = [
   { task: 'Walk the dog', completed: false },
   { task: 'Clean your room', completed: false },
   { task: 'drink too much', completed: true },
@@ -24,10 +24,14 @@ const schema = buildASTSchema(gql`
 
   type Mutation {
     addTodo(input: TodoInput!): Todo
+    editTodo(input: TodoInput!): Todo
+    deleteTodo(id: ID): Todo
   }
 
   input TodoInput {
-    task: String!
+    id: ID
+    task: String
+    completed: Boolean
   }
 `);
 
@@ -40,6 +44,15 @@ const rootValue = {
     const todo = { task, completed: false };
     TODOS.push(todo);
     return mapTodo(todo, TODOS.length);
+  },
+  editTodo: ({ input: { task, id, completed } }) => {
+    TODOS[id] = { task, completed };
+    return { task, id, completed };
+  },
+  deleteTodo: ({ id }) => {
+    const todo = TODOS[id];
+    TODOS = TODOS.filter((x, i) => i !== +id);
+    return { id, ...todo };
   },
 };
 
