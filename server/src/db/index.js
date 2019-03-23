@@ -1,4 +1,5 @@
 const pgPromise = require('pg-promise')
+const initialTables = require('./initialTables')
 
 const cn = {
   host: process.env.PGHOST,
@@ -7,7 +8,8 @@ const cn = {
   password: process.env.PGPASSWORD,
 }
 
-const pgp = pgPromise({})
-const db = pgp(cn)
+const db = pgPromise({})(cn)
+
+initialTables.forEach(async x => await db.any(x))
 
 module.exports = db

@@ -10,6 +10,7 @@ const schema = buildASTSchema(gql`
   type Query {
     todos: [Todo]!
     todo(id: ID!): Todo
+    users: [User]!
   }
 
   type Todo {
@@ -18,16 +19,29 @@ const schema = buildASTSchema(gql`
     completed: Boolean!
   }
 
+  type User {
+    id: ID!
+    name: String
+  }
+
   type Mutation {
     addTodo(input: TodoInput!): Todo
     editTodo(input: TodoInput!): Todo
     deleteTodo(id: ID): Todo
+
+    addUser(input: UserInput!): User
+    editUser(inpout: UserInput!): User
+    deleteUser(id: ID!): User
   }
 
   input TodoInput {
     id: ID
     task: String
     completed: Boolean
+  }
+  input UserInput {
+    id: ID
+    name: String
   }
 `)
 
@@ -40,21 +54,35 @@ const db = require('./db')
 
 const rootValue = {
   todos: async () => {
-    const query = 'SELECT * FROM "public"."todos";'
-    return db.manyOrNone(query)
+    const query = 'SELECT * FROM "todo";'
+    return await db.manyOrNone(query)
   },
   addTodo: async ({ input: { task } }) =>
-    await db.one('INSERT INTO "public"."todos"(task) VALUES($1) RETURNING *', [task]),
+    await db.one('INSERT INTO "todo"(task) VALUES($1) RETURNING *', [task]),
   editTodo: async ({ input: { task, id, completed } }) => {
-    return await db.one(
-      'UPDATE "public"."todos" SET completed = $1, task = $2 WHERE id = $3 RETURNING *',
-      [completed, task, id]
-    )
+    return await db.one('UPDATE "todo" SET completed = $1, task = $2 WHERE id = $3 RETURNING *', [
+      completed,
+      task,
+      id,
+    ])
   },
   deleteTodo: async ({ id }) => {
-    return await db.one('DELETE FROM "public"."todos" WHERE id = $1 RETURNING *', [id])
+    return await db.one('DELETE FROM "todo" WHERE id = $1 RETURNING *', [id])
+  },
+  users: async () => {
+    const query = 'SELECT * FROM "user";'
+    return await db.manyOrNone(query)
+  },
+  deleteUser: async ({ id }) => {
+    return await db.one('DELETE FROM "user" WHERE id = $1 RETURNING *', [id])
+  },
+  addUser: async ({ input: { name } }) => {
+    console.log('TCL: name', name)
+
+    return await db.one('INSERT INTO "user"(name) VALUES($1) RETURNING *', [name])
   },
 }
+
 app.use(
   '/graphql',
   graphqlHTTP({
