@@ -2,10 +2,11 @@ import React from 'react';
 import User from './User';
 import gql from 'graphql-tag';
 import { Query } from 'react-apollo';
+import AddUser from './AddUser';
 
 export const GET_USERS = gql`
-  query GetTodos {
-    todos {
+  query GetUsers {
+    users {
       id
       name
     }
@@ -13,9 +14,14 @@ export const GET_USERS = gql`
 `;
 
 export default () => (
-  <Query query={GET_USERS}>
-    {({ loading, data, errors }) =>
-      !loading && data && data.users && data.users.map(User)
-    }
-  </Query>
+  <>
+    <h1>Users</h1>
+    <Query query={GET_USERS}>
+      {({ loading, data, errors }) =>
+        !loading && data && data.users && data.users.map(User)
+      }
+    </Query>
+    <AddUser />
+    <br />
+  </>
 );
