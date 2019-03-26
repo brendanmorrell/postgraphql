@@ -11,6 +11,7 @@ const schema = buildASTSchema(gql`
     todos: [Todo]!
     todo(id: ID!): Todo
     users: [User]!
+    userTodos(id: ID!): [Todo]!
   }
 
   type Todo {
@@ -54,32 +55,47 @@ const db = require('./db')
 
 const rootValue = {
   todos: async () => {
-    const query = 'SELECT * FROM "todo";'
-    return await db.manyOrNone(query)
+    const query = ['SELECT * FROM "todo";']
+    return await db.manyOrNone(...query)
   },
-  addTodo: async ({ input: { task } }) =>
-    await db.one('INSERT INTO "todo"(task) VALUES($1) RETURNING *', [task]),
+  addTodo: async ({ input: { task } }) => {
+    const query = ['INSERT INTO "todo"(task) VALUES($1) RETURNING *', [task]]
+    return (await db.one(...query)) || []
+  },
   editTodo: async ({ input: { task, id, completed } }) => {
-    return await db.one('UPDATE "todo" SET completed = $1, task = $2 WHERE id = $3 RETURNING *', [
-      completed,
-      task,
-      id,
-    ])
+    const query = [
+      'UPDATE "todo" SET completed = $1, task = $2 WHERE id = $3 RETURNING *',
+      [completed, task, id],
+    ]
+    return await db.one(...query)
   },
   deleteTodo: async ({ id }) => {
-    return await db.one('DELETE FROM "todo" WHERE id = $1 RETURNING *', [id])
+    const query = ['DELETE FROM "todo" WHERE id = $1 RETURNING *', [id]]
+    return await db.one(...query)
   },
   users: async () => {
-    const query = 'SELECT * FROM "user";'
-    return await db.manyOrNone(query)
+    const query = ['SELECT * FROM "user";']
+    return (await db.manyOrNone(...query)) || []
   },
   deleteUser: async ({ id }) => {
-    return await db.one('DELETE FROM "user" WHERE id = $1 RETURNING *', [id])
+    const query = ['DELETE FROM "user" WHERE id = $1 RETURNING *', [id]]
+    return await db.one(...query)
   },
   addUser: async ({ input: { name } }) => {
-    console.log('TCL: name', name)
-
-    return await db.one('INSERT INTO "user"(name) VALUES($1) RETURNING *', [name])
+    const query = ['INSERT INTO "user"(name) VALUES($1) RETURNING *', [name]]
+    return await db.one(...query)
+  },
+  userTodos: async ({ id }) => {
+    const query = [
+      `
+    select "t"."task", "t"."completed", "t"."id"
+    from "todo" "t" 
+    join "user_todo" "ut" on "ut"."todoID" = "t"."id" 
+    join "user" "u" on "u"."id" = "ut"."userID" where "u"."id" = $1;
+    `,
+      [id],
+    ]
+    return (await db.manyOrNone(...query)) || []
   },
 }
 

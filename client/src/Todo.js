@@ -3,7 +3,7 @@ import styled from 'styled-components';
 import gql from 'graphql-tag';
 import client from './apollo';
 import { GET_TODOS } from './TodoList';
-
+import Select from './Select';
 const XIcon = styled.span`
   width: 110px;
   height: 110px;
@@ -56,10 +56,16 @@ class Todo extends Component {
       <div
         onMouseEnter={() => this.setState({ hovering: true })}
         onMouseLeave={() => this.setState({ hovering: false })}
+        key={id}
       >
         # {id} : {task}{' '}
         <input type="checkbox" checked={completed} onClick={handleCheck} />{' '}
         {hovering && <XIcon onClick={handleDelete}>X</XIcon>}
+        <div>
+          {[{ name: 1 }, { name: 2 }].map(x => (
+            <Select {...x} />
+          ))}
+        </div>
       </div>
     );
   }

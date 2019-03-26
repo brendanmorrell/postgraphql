@@ -15,13 +15,13 @@ export const GET_USERS = gql`
 
 export default () => (
   <>
-    <h1>Users</h1>
-    <Query query={GET_USERS}>
+    <h1 key="h1">Users</h1>
+    <Query query={GET_USERS} key="Query">
       {({ loading, data, errors }) =>
-        !loading && data && data.users && data.users.map(User)
+        (!loading && data && data.users && data.users.map(User)) || null
       }
     </Query>
-    <AddUser />
+    <AddUser key="AddUSer" />
     <br />
   </>
 );

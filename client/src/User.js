@@ -3,6 +3,8 @@ import styled from 'styled-components';
 import gql from 'graphql-tag';
 import client from './apollo';
 import { GET_USERS } from './UsersList';
+import { Query } from 'react-apollo';
+import Todo from './Todo';
 
 const XIcon = styled.span`
   width: 110px;
@@ -16,6 +18,16 @@ export const DELETE_USER = gql`
   mutation DeleteUser($id: ID!) {
     deleteUser(id: $id) {
       id
+    }
+  }
+`;
+
+const GET_USER_TODOS = gql`
+  query UserTodos($id: ID!) {
+    userTodos(id: $id) {
+      id
+      task
+      completed
     }
   }
 `;
@@ -38,8 +50,14 @@ class User extends Component {
       <div
         onMouseEnter={() => this.setState({ hovering: true })}
         onMouseLeave={() => this.setState({ hovering: false })}
+        key={id}
       >
         # {id} : {name} {hovering && <XIcon onClick={handleDelete}>X</XIcon>}
+        <Query query={GET_USER_TODOS} variables={{ id }}>
+          {({ loading, data }) =>
+            (!loading && data && <ul>{data.userTodos.map(Todo)}</ul>) || null
+          }
+        </Query>
       </div>
     );
   }
