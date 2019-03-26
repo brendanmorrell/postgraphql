@@ -3,7 +3,10 @@ import styled from 'styled-components';
 import gql from 'graphql-tag';
 import client from './apollo';
 import { GET_TODOS } from './TodoList';
+import { Query } from 'react-apollo';
 import Select from './Select';
+import { GET_USERS } from './UsersList';
+
 const XIcon = styled.span`
   width: 110px;
   height: 110px;
@@ -25,6 +28,15 @@ export const DELETE_TODO = gql`
   mutation DeleteTodo($id: ID!) {
     deleteTodo(id: $id) {
       id
+    }
+  }
+`;
+
+const GET_TODO_USERS = gql`
+  query TodoUsers($id: ID!) {
+    todoUsers(id: $id) {
+      id
+      name
     }
   }
 `;
@@ -62,9 +74,28 @@ class Todo extends Component {
         <input type="checkbox" checked={completed} onClick={handleCheck} />{' '}
         {hovering && <XIcon onClick={handleDelete}>X</XIcon>}
         <div>
-          {[{ name: 1 }, { name: 2 }].map(x => (
-            <Select {...x} />
-          ))}
+          <Query query={GET_USERS} key="Query">
+            {({ loading, data, errors }) =>
+              (!loading && data && data.users && (
+                <Query query={GET_TODO_USERS} variables={{ id }}>
+                  {({ loading, data: todoData }) =>
+                    data.users.map(({ name }) => (
+                      <Select
+                        name={name}
+                        assignees={
+                          (todoData &&
+                            todoData.todoUsers &&
+                            todoData.todoUsers.map(({ name }) => name)) ||
+                          []
+                        }
+                      />
+                    )) || null
+                  }
+                </Query>
+              )) ||
+              null
+            }
+          </Query>
         </div>
       </div>
     );

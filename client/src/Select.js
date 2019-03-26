@@ -1,9 +1,11 @@
 import React from 'react';
 import styled from 'styled-components';
 
-const Radio = styled.span`
+const Radio = styled.button`
   background-color: ${props => (props.selected ? 'firebrick' : 'lightgray')};
-  color: white;
+  color: ${props => (props.selected ? 'white' : 'black')};
   cursor: pointer;
 `;
-export default ({ name }) => <Radio selected={name}>{name}</Radio>;
+export default ({ name, assignees = [] }) => (
+  <Radio selected={assignees.includes(name)}>{name}</Radio>
+);

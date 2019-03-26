@@ -21,7 +21,7 @@ export default () => (
         (!loading && data.todos.map(Todo)) || null
       }
     </Query>
-    <AddTodo key="AddTodo" />;
+    <AddTodo key="AddTodo" />
     <br />
   </>
 );

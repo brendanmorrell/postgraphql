@@ -12,6 +12,7 @@ const schema = buildASTSchema(gql`
     todo(id: ID!): Todo
     users: [User]!
     userTodos(id: ID!): [Todo]!
+    todoUsers(id: ID!): [User]!
   }
 
   type Todo {
@@ -93,6 +94,13 @@ const rootValue = {
     join "user_todo" "ut" on "ut"."todoID" = "t"."id" 
     join "user" "u" on "u"."id" = "ut"."userID" where "u"."id" = $1;
     `,
+      [id],
+    ]
+    return (await db.manyOrNone(...query)) || []
+  },
+  todoUsers: async ({ id }) => {
+    const query = [
+      `select "u"."name", "u"."id" from "user" "u" join "user_todo" "ut" on "ut"."userID" = "u"."id" where "ut"."todoID" = $1`,
       [id],
     ]
     return (await db.manyOrNone(...query)) || []
