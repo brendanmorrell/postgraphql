@@ -15,10 +15,12 @@ export const GET_TODOS = gql`
 
 export default () => (
   <>
-    <h1 key="h1">Todos</h1>
+    <h1 id="this-id-is-for-todos-header" key="h1">
+      Todos
+    </h1>
     <Query query={GET_TODOS} key="Query">
       {({ loading, data, errors }) =>
-        (!loading && data.todos.map(Todo)) || null
+        (!loading && data.todos.map(x => <Todo {...x} isMainTodo />)) || null
       }
     </Query>
     <AddTodo key="AddTodo" />

@@ -61,7 +61,7 @@ class Todo extends Component {
     });
   };
   render() {
-    const { id, task, completed } = this.props;
+    const { id, task, completed, isMainTodo } = this.props;
     const { hovering } = this.state;
     const { handleCheck, handleDelete } = this;
     return (
@@ -79,17 +79,20 @@ class Todo extends Component {
               (!loading && data && data.users && (
                 <Query query={GET_TODO_USERS} variables={{ id }}>
                   {({ loading, data: todoData }) =>
-                    data.users.map(({ name }) => (
-                      <Select
-                        name={name}
-                        assignees={
-                          (todoData &&
-                            todoData.todoUsers &&
-                            todoData.todoUsers.map(({ name }) => name)) ||
-                          []
-                        }
-                      />
-                    )) || null
+                    data.users.map(
+                      ({ name }) =>
+                        isMainTodo && (
+                          <Select
+                            name={name}
+                            assignees={
+                              (todoData &&
+                                todoData.todoUsers &&
+                                todoData.todoUsers.map(({ name }) => name)) ||
+                              []
+                            }
+                          />
+                        ),
+                    ) || null
                   }
                 </Query>
               )) ||
